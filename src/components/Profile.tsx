@@ -1,13 +1,19 @@
-import { Settings, Trophy, Calendar, Users, Medal, Star, Edit, Share2, Award, BookOpen, Target, TrendingUp, Clock, MapPin } from "lucide-react";
+import { Settings, Trophy, Calendar, Users, Medal, Star, Edit, Share2, Award, BookOpen, Target, TrendingUp, Clock, MapPin, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
 
 interface ProfileProps {
   onSettingsClick: () => void;
 }
 
 const Profile = ({ onSettingsClick }: ProfileProps) => {
-  const userProfile = {
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState({
     name: "Alex Smith",
     studentId: "2024-BS-101",
     grade: "Grade 11",
@@ -16,6 +22,22 @@ const Profile = ({ onSettingsClick }: ProfileProps) => {
     bio: "Passionate about science and sports. Love participating in school events!",
     joinedDate: "Sep 2023",
     location: "New York, USA"
+  });
+
+  const [editForm, setEditForm] = useState({
+    name: userProfile.name,
+    bio: userProfile.bio,
+    location: userProfile.location
+  });
+
+  const handleSaveProfile = () => {
+    setUserProfile(prev => ({
+      ...prev,
+      name: editForm.name,
+      bio: editForm.bio,
+      location: editForm.location
+    }));
+    setIsEditOpen(false);
   };
 
   const userStats = [
@@ -53,9 +75,66 @@ const Profile = ({ onSettingsClick }: ProfileProps) => {
           <div className="w-28 h-28 mx-auto rounded-full app-gradient flex items-center justify-center shadow-floating animate-scale-in">
             <span className="text-4xl font-bold text-white">AS</span>
           </div>
-          <button className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-card transition-smooth hover:scale-110">
-            <Edit size={16} className="text-primary-foreground" />
-          </button>
+          <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+            <DialogTrigger asChild>
+              <button className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-card transition-smooth hover:scale-110">
+                <Edit size={16} className="text-primary-foreground" />
+              </button>
+            </DialogTrigger>
+            <DialogContent className="w-[90%] max-w-md rounded-2xl">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold">Edit Profile</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div>
+                  <Label htmlFor="edit-name" className="text-sm font-medium">Full Name</Label>
+                  <Input
+                    id="edit-name"
+                    value={editForm.name}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="mt-1 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-bio" className="text-sm font-medium">Bio</Label>
+                  <Textarea
+                    id="edit-bio"
+                    value={editForm.bio}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, bio: e.target.value }))}
+                    className="mt-1 rounded-xl min-h-[80px]"
+                    maxLength={150}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">{editForm.bio.length}/150 characters</p>
+                </div>
+                <div>
+                  <Label htmlFor="edit-location" className="text-sm font-medium">Location</Label>
+                  <Input
+                    id="edit-location"
+                    value={editForm.location}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, location: e.target.value }))}
+                    className="mt-1 rounded-xl"
+                  />
+                </div>
+                <div className="flex space-x-2 pt-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsEditOpen(false)}
+                    className="flex-1 rounded-xl"
+                  >
+                    <X size={16} className="mr-2" />
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleSaveProfile}
+                    className="flex-1 rounded-xl"
+                  >
+                    <Save size={16} className="mr-2" />
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
         
         <div className="space-y-3">

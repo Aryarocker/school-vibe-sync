@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Calendar, MapPin, Users, Clock, FileText, Image, Trophy } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, FileText, Image, Trophy, Upload, DollarSign, UserCheck, Tag, Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 
 const CreateEvent = () => {
   const [formData, setFormData] = useState({
@@ -12,10 +13,23 @@ const CreateEvent = () => {
     category: "",
     date: "",
     time: "",
+    endTime: "",
     venue: "",
     capacity: "",
     eligibility: "",
     registrationDeadline: "",
+    rules: "",
+    prerequisites: "",
+    contactName: "",
+    contactEmail: "",
+    contactPhone: "",
+    registrationFee: "",
+    teamMinSize: "",
+    teamMaxSize: "",
+    tags: "",
+    isTeamEvent: "false",
+    requiresApproval: "true",
+    allowWaitlist: "false",
   });
 
   const categories = [
@@ -121,7 +135,7 @@ const CreateEvent = () => {
             <span>Event Details</span>
           </h2>
           
-          <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="date" className="text-sm font-medium text-foreground">Event Date</Label>
               <Input
@@ -134,12 +148,39 @@ const CreateEvent = () => {
             </div>
             
             <div>
+              <Label htmlFor="registrationDeadline" className="text-sm font-medium text-foreground flex items-center space-x-1">
+                <Clock size={14} />
+                <span>Registration Deadline</span>
+              </Label>
+              <Input
+                id="registrationDeadline"
+                type="date"
+                value={formData.registrationDeadline}
+                onChange={(e) => handleInputChange("registrationDeadline", e.target.value)}
+                className="mt-1 rounded-xl"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
               <Label htmlFor="time" className="text-sm font-medium text-foreground">Start Time</Label>
               <Input
                 id="time"
                 type="time"
                 value={formData.time}
                 onChange={(e) => handleInputChange("time", e.target.value)}
+                className="mt-1 rounded-xl"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="endTime" className="text-sm font-medium text-foreground">End Time (Optional)</Label>
+              <Input
+                id="endTime"
+                type="time"
+                value={formData.endTime}
+                onChange={(e) => handleInputChange("endTime", e.target.value)}
                 className="mt-1 rounded-xl"
               />
             </div>
@@ -176,19 +217,61 @@ const CreateEvent = () => {
             </div>
             
             <div>
-              <Label htmlFor="registrationDeadline" className="text-sm font-medium text-foreground flex items-center space-x-1">
-                <Clock size={14} />
-                <span>Registration Deadline</span>
+              <Label htmlFor="registrationFee" className="text-sm font-medium text-foreground flex items-center space-x-1">
+                <DollarSign size={14} />
+                <span>Registration Fee</span>
               </Label>
               <Input
-                id="registrationDeadline"
-                type="date"
-                value={formData.registrationDeadline}
-                onChange={(e) => handleInputChange("registrationDeadline", e.target.value)}
+                id="registrationFee"
+                type="number"
+                placeholder="0 (Free event)"
+                value={formData.registrationFee}
+                onChange={(e) => handleInputChange("registrationFee", e.target.value)}
                 className="mt-1 rounded-xl"
               />
             </div>
           </div>
+
+          {/* Team Event Toggle */}
+          <div className="flex items-center justify-between p-3 rounded-xl border border-border">
+            <div>
+              <Label className="text-sm font-medium text-foreground">Team Event</Label>
+              <p className="text-xs text-muted-foreground">Participants can register as teams</p>
+            </div>
+            <Switch
+              checked={formData.isTeamEvent === "true"}
+              onCheckedChange={(checked) => handleInputChange("isTeamEvent", checked.toString())}
+            />
+          </div>
+
+          {/* Team Size Fields (shown only if team event) */}
+          {formData.isTeamEvent === "true" && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="teamMinSize" className="text-sm font-medium text-foreground">Min Team Size</Label>
+                <Input
+                  id="teamMinSize"
+                  type="number"
+                  placeholder="e.g., 2"
+                  value={formData.teamMinSize}
+                  onChange={(e) => handleInputChange("teamMinSize", e.target.value)}
+                  className="mt-1 rounded-xl"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="teamMaxSize" className="text-sm font-medium text-foreground">Max Team Size</Label>
+                <Input
+                  id="teamMaxSize"
+                  type="number"
+                  placeholder="e.g., 5"
+                  value={formData.teamMaxSize}
+                  onChange={(e) => handleInputChange("teamMaxSize", e.target.value)}
+                  className="mt-1 rounded-xl"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Eligibility */}
@@ -213,6 +296,134 @@ const CreateEvent = () => {
                 <span className="font-medium">{option}</span>
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* Additional Details */}
+        <div className="event-card space-y-4">
+          <h2 className="text-lg font-semibold text-foreground flex items-center space-x-2">
+            <FileText size={20} className="text-primary" />
+            <span>Additional Details</span>
+          </h2>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="rules" className="text-sm font-medium text-foreground">Event Rules & Requirements</Label>
+              <Textarea
+                id="rules"
+                placeholder="Describe the rules, requirements, and guidelines for this event..."
+                value={formData.rules}
+                onChange={(e) => handleInputChange("rules", e.target.value)}
+                className="mt-1 rounded-xl min-h-[80px]"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="prerequisites" className="text-sm font-medium text-foreground">Prerequisites</Label>
+              <Textarea
+                id="prerequisites"
+                placeholder="Any skills, equipment, or preparation required..."
+                value={formData.prerequisites}
+                onChange={(e) => handleInputChange("prerequisites", e.target.value)}
+                className="mt-1 rounded-xl min-h-[60px]"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="tags" className="text-sm font-medium text-foreground flex items-center space-x-1">
+                <Tag size={14} />
+                <span>Event Tags</span>
+              </Label>
+              <Input
+                id="tags"
+                placeholder="e.g., science, competition, fun, creative (comma separated)"
+                value={formData.tags}
+                onChange={(e) => handleInputChange("tags", e.target.value)}
+                className="mt-1 rounded-xl"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Contact Information */}
+        <div className="event-card space-y-4">
+          <h2 className="text-lg font-semibold text-foreground flex items-center space-x-2">
+            <UserCheck size={20} className="text-primary" />
+            <span>Contact Information</span>
+          </h2>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="contactName" className="text-sm font-medium text-foreground">Event Coordinator</Label>
+              <Input
+                id="contactName"
+                placeholder="Your full name"
+                value={formData.contactName}
+                onChange={(e) => handleInputChange("contactName", e.target.value)}
+                className="mt-1 rounded-xl"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <Label htmlFor="contactEmail" className="text-sm font-medium text-foreground flex items-center space-x-1">
+                  <Mail size={14} />
+                  <span>Email Address</span>
+                </Label>
+                <Input
+                  id="contactEmail"
+                  type="email"
+                  placeholder="coordinator@school.edu"
+                  value={formData.contactEmail}
+                  onChange={(e) => handleInputChange("contactEmail", e.target.value)}
+                  className="mt-1 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="contactPhone" className="text-sm font-medium text-foreground flex items-center space-x-1">
+                  <Phone size={14} />
+                  <span>Phone Number (Optional)</span>
+                </Label>
+                <Input
+                  id="contactPhone"
+                  type="tel"
+                  placeholder="(555) 123-4567"
+                  value={formData.contactPhone}
+                  onChange={(e) => handleInputChange("contactPhone", e.target.value)}
+                  className="mt-1 rounded-xl"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Event Settings */}
+        <div className="event-card space-y-4">
+          <h2 className="text-lg font-semibold text-foreground">Event Settings</h2>
+          
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 rounded-xl border border-border">
+              <div>
+                <Label className="text-sm font-medium text-foreground">Requires Approval</Label>
+                <p className="text-xs text-muted-foreground">Event needs admin approval before publishing</p>
+              </div>
+              <Switch
+                checked={formData.requiresApproval === "true"}
+                onCheckedChange={(checked) => handleInputChange("requiresApproval", checked.toString())}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-3 rounded-xl border border-border">
+              <div>
+                <Label className="text-sm font-medium text-foreground">Allow Waitlist</Label>
+                <p className="text-xs text-muted-foreground">Allow students to join waitlist when event is full</p>
+              </div>
+              <Switch
+                checked={formData.allowWaitlist === "true"}
+                onCheckedChange={(checked) => handleInputChange("allowWaitlist", checked.toString())}
+              />
+            </div>
           </div>
         </div>
 

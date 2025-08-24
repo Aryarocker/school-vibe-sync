@@ -1,7 +1,32 @@
-import { Calendar, MapPin, Clock, Users, Trophy, TrendingUp } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, Trophy, TrendingUp, Check, Eye, X } from "lucide-react";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import campusHero from "@/assets/campus-hero.jpg";
 
 const Dashboard = () => {
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [joinedEvents, setJoinedEvents] = useState<number[]>([]);
+  const [showJoinDialog, setShowJoinDialog] = useState(false);
+  const [eventToJoin, setEventToJoin] = useState<any>(null);
+
+  const handleJoinEvent = (event: any) => {
+    setEventToJoin(event);
+    setShowJoinDialog(true);
+  };
+
+  const confirmJoinEvent = () => {
+    if (eventToJoin) {
+      setJoinedEvents(prev => [...prev, eventToJoin.id]);
+      setShowJoinDialog(false);
+      setEventToJoin(null);
+    }
+  };
+
+  const handleViewDetails = (event: any) => {
+    setSelectedEvent(event);
+  };
   const upcomingEvents = [
     {
       id: 1,
@@ -137,17 +162,180 @@ const Dashboard = () => {
               </div>
               
               <div className="flex space-x-2">
-                <button className="flex-1 btn-campus py-2 text-sm">
-                  Join Event
+                <button 
+                  onClick={() => handleJoinEvent(event)}
+                  disabled={joinedEvents.includes(event.id)}
+                  className={`flex-1 py-2 text-sm rounded-xl transition-smooth ${
+                    joinedEvents.includes(event.id)
+                      ? 'bg-green-100 text-green-700 border border-green-300'
+                      : 'btn-campus'
+                  }`}
+                >
+                  {joinedEvents.includes(event.id) ? (
+                    <>
+                      <Check size={16} className="inline mr-1" />
+                      Joined
+                    </>
+                  ) : (
+                    'Join Event'
+                  )}
                 </button>
-                <button className="flex-1 btn-outline-campus py-2 text-sm">
-                  View Details
+                <button 
+                  onClick={() => handleViewDetails(event)}
+                  className="flex-1 btn-outline-campus py-2 text-sm"
+                >
+                  <Eye size={16} className="inline mr-1" />
+                  Details
                 </button>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Join Event Confirmation Dialog */}
+      <Dialog open={showJoinDialog} onOpenChange={setShowJoinDialog}>
+        <DialogContent className="w-[90%] max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Join Event</DialogTitle>
+          </DialogHeader>
+          {eventToJoin && (
+            <div className="space-y-4 py-4">
+              <div className="text-center space-y-2">
+                <h3 className="font-semibold text-lg">{eventToJoin.title}</h3>
+                <div className="flex items-center justify-center space-x-4 text-sm text-muted-foreground">
+                  <div className="flex items-center space-x-1">
+                    <Calendar size={14} />
+                    <span>{eventToJoin.date}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Clock size={14} />
+                    <span>{eventToJoin.time}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-center space-x-1 text-sm text-muted-foreground">
+                  <MapPin size={14} />
+                  <span>{eventToJoin.venue}</span>
+                </div>
+              </div>
+              <div className="bg-muted/50 rounded-xl p-4 text-center">
+                <p className="text-sm text-muted-foreground">
+                  Are you sure you want to join <strong>{eventToJoin.title}</strong>?
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  You'll receive notifications about this event.
+                </p>
+              </div>
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowJoinDialog(false)}
+                  className="flex-1 rounded-xl"
+                >
+                  <X size={16} className="mr-2" />
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={confirmJoinEvent}
+                  className="flex-1 rounded-xl"
+                >
+                  <Check size={16} className="mr-2" />
+                  Join Event
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Event Details Dialog */}
+      <Dialog open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
+        <DialogContent className="w-[90%] max-w-md rounded-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Event Details</DialogTitle>
+          </DialogHeader>
+          {selectedEvent && (
+            <div className="space-y-4 py-4">
+              <div className="text-center space-y-2">
+                <h3 className="font-semibold text-xl">{selectedEvent.title}</h3>
+                <Badge variant="outline" className="rounded-xl">
+                  {selectedEvent.category}
+                </Badge>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <Calendar size={18} className="text-primary" />
+                  <div>
+                    <p className="font-medium">Date & Time</p>
+                    <p className="text-sm text-muted-foreground">{selectedEvent.date} at {selectedEvent.time}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-3">
+                  <MapPin size={18} className="text-primary" />
+                  <div>
+                    <p className="font-medium">Venue</p>
+                    <p className="text-sm text-muted-foreground">{selectedEvent.venue}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-3">
+                  <Users size={18} className="text-primary" />
+                  <div>
+                    <p className="font-medium">Participants</p>
+                    <p className="text-sm text-muted-foreground">{selectedEvent.participants} students joined</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-3">
+                  <Trophy size={18} className="text-primary" />
+                  <div>
+                    <p className="font-medium">Status</p>
+                    <Badge variant={selectedEvent.status === 'Open' ? 'default' : 'secondary'} className="rounded-lg">
+                      {selectedEvent.status}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-muted/50 rounded-xl p-4">
+                <h4 className="font-medium mb-2">Event Description</h4>
+                <p className="text-sm text-muted-foreground">
+                  Join us for an exciting {selectedEvent.category.toLowerCase()} event! This is a great opportunity to showcase your talents and connect with fellow students.
+                </p>
+              </div>
+
+              <div className="bg-muted/50 rounded-xl p-4">
+                <h4 className="font-medium mb-2">Requirements</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Open to all students</li>
+                  <li>• Bring your student ID</li>
+                  <li>• Arrive 15 minutes early</li>
+                </ul>
+              </div>
+
+              <Button 
+                onClick={() => {
+                  handleJoinEvent(selectedEvent);
+                  setSelectedEvent(null);
+                }}
+                disabled={joinedEvents.includes(selectedEvent.id)}
+                className="w-full rounded-xl"
+              >
+                {joinedEvents.includes(selectedEvent.id) ? (
+                  <>
+                    <Check size={16} className="mr-2" />
+                    Already Joined
+                  </>
+                ) : (
+                  'Join This Event'
+                )}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
