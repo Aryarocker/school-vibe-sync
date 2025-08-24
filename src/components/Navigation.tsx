@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Calendar, Plus, Users, User, Settings } from "lucide-react";
+import { Home, Calendar, Plus, Users, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavigationProps {
@@ -12,8 +12,8 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
     { id: "dashboard", icon: Home, label: "Home" },
     { id: "calendar", icon: Calendar, label: "Calendar" },
     { id: "create", icon: Plus, label: "Create" },
+    { id: "community", icon: Users, label: "Community" },
     { id: "profile", icon: User, label: "Profile" },
-    { id: "settings", icon: Settings, label: "Settings" },
   ];
 
   return (
